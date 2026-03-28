@@ -1,0 +1,43 @@
+import streamlit as st
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
+# Dataset
+items = [
+    "banana peel", "apple core", "vegetable waste", "leftover food",
+    "plastic bottle", "glass", "paper", "cardboard", "metal can",
+    "food scraps", "fruit waste", "dry leaves"
+]
+
+labels = [
+    "wet", "wet", "wet", "wet",
+    "dry", "dry", "dry", "dry", "dry",
+    "wet", "wet", "dry"
+]
+
+# Convert text to numbers
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(items)
+
+# Train model
+model = MultinomialNB()
+model.fit(X, labels)
+
+# UI
+st.title("🗑️ Smart Waste Classifier")
+
+user_input = st.text_input("Enter waste item (e.g., banana peel, plastic bottle)")
+
+if st.button("Classify"):
+    if user_input:
+        input_vec = vectorizer.transform([user_input])
+        prediction = model.predict(input_vec)
+
+        st.success(f"This is **{prediction[0].upper()} WASTE**")
+
+        if prediction[0] == "wet":
+            st.info("Dispose in green bin 🌱")
+        else:
+            st.info("Dispose in blue bin ♻️")
+    else:
+        st.warning("Please enter an item")
